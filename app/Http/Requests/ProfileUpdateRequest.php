@@ -47,7 +47,7 @@ public function messages(): array
     {
         return [
             'name' => 'nama',
-            'email' => 'alamat email',
+            'email' => 'alamat email',  
             'phone' => 'nomor telepon',
             'address' => 'alamat domisili',
             'avatar' => 'foto profil',

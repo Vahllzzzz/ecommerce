@@ -44,6 +44,7 @@ class ProfileController extends Controller
     }
 
     protected function uploadAvatar(ProfileUpdateRequest $request, $user): string
+    {
     
         if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
             Storage::disk('public')->delete($user->avatar);

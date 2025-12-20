@@ -1,24 +1,10 @@
 <?php
+// app/Providers/AppServiceProvider.php
 
-namespace App\Providers;
+use App\Models\Product;
+use App\Observers\ProductObserver;
 
-use Illuminate\Support\ServiceProvider;
-
-class AppServiceProvider extends ServiceProvider
+public function boot(): void
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        //
-    }
-
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
-    {
-        //
-    }
+    Product::observe(ProductObserver::class);
 }
