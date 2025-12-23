@@ -59,6 +59,7 @@ Route::controller(GoogleController::class)->group(function () {
     Route::get('/auth/google/callback', 'callback')
         ->name('auth.google.callback');
         
+});
 // routes/web.php
 
 Route::middleware('auth')->group(function () {
@@ -94,19 +95,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
+    // Catalog
+    route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
+    route::get('/products/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/admin', [DashboardController::class, 'index'])
-        ->name('admin/dashboard');
+    Route::get('admin', [DashboardController::class, 'dashboard'])
+        ->name('admin.dashboard');
 });
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
-
-    // Produk CRUD
-    Route::resource('products', AdminProductController::class);
-
-    // Kategori CRUD
-    Route::resource('categories', AdminCategoryController::class);
 
     // Manajemen Pesanan
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
@@ -114,4 +112,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
 });
 
+    // Produk CRUD
+    Route::resource('products', AdminProductController::class);
+
+    // Kategori CRUD
+    Route::resource('categories', AdminCategoryController::class);
+
+route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('categories', AdminCategoryController::class);
+    Route::resource('products', AdminProductController::class);
 });
