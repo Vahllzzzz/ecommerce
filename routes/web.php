@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\Admin\AdminController;
+use App\Services\MidtransService;
 
 Route::get('/', function () {
     return view('welcome');
@@ -122,3 +123,62 @@ route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('categories', AdminCategoryController::class);
     Route::resource('products', AdminProductController::class);
 });
+
+    Route::middleware('auth')->group(function() {
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+});
+
+// Route::get('/debug-midtrans', function () {
+//     // Cek apakah config terbaca
+//     $config = [
+//         'merchant_id'   => config('midtrans.merchant_id'),
+//         'client_key'    => config('midtrans.client_key'),
+//         'server_key'    => config('midtrans.server_key') ? '***SET***' : 'NOT SET',
+//         'is_production' => config('midtrans.is_production'),
+//     ];
+
+//     // Test buat dummy token
+//     try {
+//         $service = new MidtransService();
+
+//         // Buat dummy order untuk testing
+//         $dummyOrder = new \App\Models\Order();
+//         $dummyOrder->order_number = 'TEST-' . time();
+//         $dummyOrder->total_amount = 10000;
+//         $dummyOrder->shipping_cost = 0;
+//         $dummyOrder->shipping_name = 'Test User';
+//         $dummyOrder->shipping_phone = '08123456789';
+//         $dummyOrder->shipping_address = 'Jl. Test No. 123';
+//         $dummyOrder->user = (object) [
+//             'name'  => 'Tester',
+//             'email' => 'test@example.com',
+//             'phone' => '08123456789',
+//         ];
+//         // Dummy items
+//         $dummyOrder->items = collect([
+//             (object) [
+//                 'product_id'   => 1,
+//                 'product_name' => 'Produk Test',
+//                 'price'        => 10000,
+//                 'quantity'     => 1,
+//             ],
+//         ]);
+
+//         $token = $service->createSnapToken($dummyOrder);
+
+//         return response()->json([
+//             'status'  => 'SUCCESS',
+//             'message' => 'Berhasil terhubung ke Midtrans!',
+//             'config'  => $config,
+//             'token'   => $token,
+//         ]);
+
+//     } catch (\Exception $e) {
+//         return response()->json([
+//             'status'  => 'ERROR',
+//             'message' => $e->getMessage(),
+//             'config'  => $config,
+//         ], 500);
+//     }
+// });

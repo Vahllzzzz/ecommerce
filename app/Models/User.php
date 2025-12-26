@@ -56,14 +56,18 @@ class User extends Authenticatable
         return $this->hasOne(Cart::class);
     }
 
-    /**
-     * User memiliki banyak item wishlist.
-     */
     public function wishlists()
     {
-        return $this->hasMany(Wishlist::class);
+        // Relasi User ke Product melalui tabel wishlists
+        return $this->belongsToMany(Product::class, 'wishlists')
+                    ->withTimestamps(); // Agar created_at/updated_at di pivot terisi
     }
 
+// Helper untuk cek apakah user sudah wishlist produk tertentu
+public function hasInWishlist(Product $product)
+{
+    return $this->wishlists()->where('product_id', $product->id)->exists();
+}
     /**
      * User memiliki banyak pesanan.
      */
@@ -99,34 +103,15 @@ class User extends Authenticatable
         return $this->role === 'customer';
     }
 
-    /**
-     * Cek apakah produk ada di wishlist user.
-     */
-    public function hasInWishlist(Product $product): bool
-    {
-        return $this->wishlists()
-                    ->where('product_id', $product->id)
-                    ->exists();
-    }
     
 public function getAvatarUrlAttribute(): string
 {
-    // Prioritas 1: Avatar yang di-upload (file fisik ada di server)
-    // Kita harus cek Storage::exists() agar tidak broken image jika file-nya terhapus manual.
     if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
         return asset('storage/' . $this->avatar);
     }
-
-    // Prioritas 2: Avatar dari Google (URL eksternal dimulai dengan http)
-    // Biasanya ini terjadi saat user login via Socialite (Google Sign-In).
     if (str_starts_with($this->avatar ?? '', 'http')) {
         return $this->avatar;
     }
-
-    // Prioritas 3: Gravatar (Layanan sedunia untuk avatar berdasarkan email)
-    // Gravatar menggunakan MD5 hash dari email lowercase.
-    // Jika user belum punya gravatar, tampilkan 'mp' (Mystery Person).
-    // &s=200 artinya size gambar 200x200px.
     $hash = md5(strtolower(trim($this->email)));
     return "https://www.gravatar.com/avatar/{$hash}?d=mp&s=200";
 }
