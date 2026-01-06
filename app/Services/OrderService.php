@@ -38,40 +38,12 @@ class OrderService
         return DB::transaction(function () use ($user, $cart, $shippingData) {
             // A. VALIDASI STOK & HITUNG TOTAL
             $totalAmount = 0;
-            \Log::info('Cart items before calculation:', [
-                'cart_id' => $cart->id,
-                'item_count' => $cart->items->count(),
-                'items' => $cart->items->map(function($item) {
-                    return [
-                        'product_id' => $item->product_id,
-                        'product_name' => $item->product->name,
-                        'quantity' => $item->quantity,
-                        'price' => $item->product->price,
-                        'discount_price' => $item->product->discount_price,
-                        'subtotal' => $item->product->discount_price * $item->quantity
-                    ];
-                })->toArray()
-            ]);
-            
             foreach ($cart->items as $item) {
                 if ($item->quantity > $item->product->stock) {
                     throw new \Exception("Stok produk {$item->product->name} tidak mencukupi.");
                 }
-                $price = $item->product->discount_price ?: $item->product->price;
-                $subtotal = $price * $item->quantity;
-                \Log::info('Adding to total:', [
-                    'product_id' => $item->product_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->product->price,
-                    'discount_price' => $item->product->discount_price,
-                    'effective_price' => $price,
-                    'subtotal' => $subtotal,
-                    'running_total' => $totalAmount + $subtotal
-                ]);
-                $totalAmount += $subtotal;
+                $totalAmount += $item->product->discount_price * $item->quantity;
             }
-            
-            \Log::info('Final total amount:', ['totalAmount' => $totalAmount]);
 
             // B. BUAT HEADER ORDER
             $order = Order::create([
@@ -87,13 +59,12 @@ class OrderService
 
             // C. PINDAHKAN ITEMS
             foreach ($cart->items as $item) {
-                $price = $item->product->discount_price ?: $item->product->price;
                 $order->items()->create([
                     'product_id'   => $item->product_id,
                     'product_name' => $item->product->name,
-                    'price'        => $price,
+                    'price'        => $item->product->discount_price,
                     'quantity'     => $item->quantity,
-                    'subtotal'     => $price * $item->quantity,
+                    'subtotal'     => $item->product->discount_price * $item->quantity,
                 ]);
                 $item->product->decrement('stock', $item->quantity);
             }

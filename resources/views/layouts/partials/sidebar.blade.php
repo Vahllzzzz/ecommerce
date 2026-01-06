@@ -57,8 +57,6 @@
                     <i class="bi bi-grid-fill"></i>
                     <span>Dashboard</span>
                 </a>
-                
-
             </li>
             
             <li
@@ -86,6 +84,13 @@
                         <a href="{{ route('admin.products.index') }}" class="submenu-link">Produk</a>
                     </li>>
                 </ul>
+            </li>
+            <li
+                class="sidebar-item {{ request()->routeIs('admin.orders') ? 'active' : '' }}">
+                <a href="{{ route('admin.orders.index') }}" class='sidebar-link'>
+                    <i class="bi bi-grid-fill"></i>
+                    <span>orders</span>
+                </a>
             </li>
             
             <li

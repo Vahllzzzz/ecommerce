@@ -107,30 +107,7 @@
                             </div>
                         </div>
                     </div>
-                    {{-- <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4>Profile Visit</h4>
-                                </div>
-                                <div class="card-body">
-                                    <div id="chart-profile-visit"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
                     <div class="row">
-                        {{-- 2. Revenue Chart --}}
-                        <div class="col-lg-12 mb-4">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-header bg-white py-3">
-                                    <h5 class="card-title mb-0">Grafik Penjualan (7 Hari)</h5>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="revenueChart" height="100"></canvas>
-                                </div>
-                            </div>
-                        </div>
                         <div class="col-12 col-xl-8">
                             {{-- 4. Top Selling Products --}}
                             <div class="card border-0 shadow-sm mt-4">

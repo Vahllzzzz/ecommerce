@@ -1,35 +1,28 @@
 <?php
-// app/Http/Controllers/ProfileController.php
 
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\AvatarRequestUpdate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\View\View;
-
+use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
-    public function edit(Request $request): View
+    public function edit(Request $request)
     {
         return view('profile.edit', [
             'user' => $request->user(),
         ]);
     }
 
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    // UPDATE DATA PROFIL (NAME, EMAIL, PHONE, ADDRESS)
+    public function update(ProfileUpdateRequest $request)
     {
         $user = $request->user();
-
-        if ($request->hasFile('avatar')) {
-            $avatarPath = $this->uploadAvatar($request, $user);
-
-            $user->avatar = $avatarPath;
-        }
 
         $user->fill($request->validated());
 
@@ -39,51 +32,56 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return Redirect::route('profile.edit')
-            ->with('success', 'Profil berhasil diperbarui!');
+        return back()->with('success', 'Profil berhasil diperbarui');
     }
 
-    protected function uploadAvatar(ProfileUpdateRequest $request, $user): string
-    {
-    
-        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-            Storage::disk('public')->delete($user->avatar);
-        }
-        $filename = 'avatar-' . $user->id . '-' . time() . '.' . $request->file('avatar')->extension();
-        $path = $request->file('avatar')->storeAs('avatars', $filename, 'public');
-
-        return $path;
-    }
-
-    public function deleteAvatar(Request $request): RedirectResponse
+    // UPDATE AVATAR
+    public function updateAvatar(AvatarRequestUpdate $request)
     {
         $user = $request->user();
 
         if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
             Storage::disk('public')->delete($user->avatar);
+        }
 
+        $filename = 'avatar-' . $user->id . '-' . Str::uuid() . '.' . $request->file('avatar')->extension();
+        $path = $request->file('avatar')->storeAs('avatars', $filename, 'public');
+
+        $user->update(['avatar' => $path]);
+
+        return back()->with('success', 'Avatar berhasil diperbarui');
+    }
+
+    // HAPUS AVATAR
+    public function deleteAvatar(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+            Storage::disk('public')->delete($user->avatar);
             $user->update(['avatar' => null]);
         }
 
-        return back()->with('success', 'Foto profil berhasil dihapus.');
+        return back()->with('success', 'Avatar berhasil dihapus');
     }
 
-
-    public function updatePassword(Request $request): RedirectResponse
+    // UPDATE PASSWORD
+    public function updatePassword(Request $request)
     {
-        $validated = $request->validateWithBag('updatePassword', [
+        $request->validateWithBag('updatePassword', [
             'current_password' => ['required', 'current_password'],
             'password' => ['required', 'confirmed', 'min:8'],
         ]);
 
         $request->user()->update([
-            'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+            'password' => bcrypt($request->password),
         ]);
 
         return back()->with('status', 'password-updated');
     }
 
-    public function destroy(Request $request): RedirectResponse
+    // HAPUS AKUN
+    public function destroy(Request $request)
     {
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
