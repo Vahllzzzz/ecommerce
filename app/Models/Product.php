@@ -27,15 +27,27 @@ class Product extends Model
         'is_featured',
     ];
 
-    // Casts: Konversi tipe data otomatis
-    // decimal:2 -> Angka decimal dengan 2 digit di belakang koma (string di PHP agar akurat)
-    // boolean   -> tinyint(1) di DB dikonversi jadi true/false di PHP
     protected $casts = [
         'price' => 'decimal:2',
         'discount_price' => 'decimal:2',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
     ];
+
+    // boot
+    protected static function booted()
+    {
+        static::creating(function ($product) {
+            if (empty($product->slug)) {
+                $product->slug = Str::slug($product->name);
+
+                $count = static::where('slug', 'like', $product->slug . '%')->count();
+                if ($count > 0) {
+                    $product->slug .= '-' . $count;
+                }
+            }
+        });
+    }
 
     // ==================== RELATIONSHIPS ====================
 
@@ -101,10 +113,7 @@ class Product extends Model
      */
     public function getDisplayPriceAttribute(): float
     {
-        if ($this->discount_price !== null && $this->discount_price < $this->price) {
-            return (float) $this->discount_price;
-        }
-        return (float) $this->price;
+        return $this->discount_price ?? $this->price;
     }
 
     /**
@@ -134,7 +143,6 @@ class Product extends Model
     public function getHasDiscountAttribute(): bool
     {
         return $this->discount_price !== null
-            && $this->discount_price > 0
             && $this->discount_price < $this->price;
     }
 
@@ -148,8 +156,7 @@ class Product extends Model
             return 0;
         }
 
-        $discount = $this->price - $this->discount_price;
-        return (int) round(($discount / $this->price) * 100);
+        return round((($this->price - $this->discount_price) / $this->price) * 100);
     }
 
     /**

@@ -7,6 +7,7 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class CategoryController extends Controller
 {
@@ -46,6 +47,8 @@ class CategoryController extends Controller
         $validated['slug'] = Str::slug($validated['name']);
         Category::create($validated);
         return back()->with('success', 'Kategory Berhasil Ditambahkan.');
+        
+        Cache::forget('global_categories');
     }
 
     /**
@@ -89,6 +92,8 @@ class CategoryController extends Controller
         $category->update($validated);
 
         return back()->with('success', 'Kategori berhasil diperbarui!');
+        
+        Cache::forget('global_categories');
     }
 
     /**
@@ -105,5 +110,7 @@ class CategoryController extends Controller
         }
         $category->delete();
         return back()->with('success', 'Kategori berhasil dihapus!');
+        
+        Cache::forget('global_categories');
     }
 }

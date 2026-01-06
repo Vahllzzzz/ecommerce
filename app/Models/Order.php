@@ -2,27 +2,29 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
+use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
-    /** @use HasFactory<\Database\Factories\OrderFactory> */
     use HasFactory;
     protected $fillable = [
         'user_id',
+        'product_id',
+        'product_name',
+        ' price',
+        ' quantity',
+         'subtotal',
         'order_number',
         'status',
         'total_amount',
-        'shipping_address',
-        'status',
         'shipping_name',
-        'shipping_phone',
         'shipping_address',
-        'payment_method',
-        'notes',
+        'shipping_phone',
+        'shipping_cost',
     ];
-
     public function user()
     {
         return $this->belongsTo(User::class);

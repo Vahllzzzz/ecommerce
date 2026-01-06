@@ -21,13 +21,7 @@
                 <a class="nav-link {{ request('status') == 'processing' ? 'active' : '' }}" href="{{ route('admin.orders.index', ['status' => 'processing']) }}">Diproses</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request('status') == 'shipped' ? 'active' : '' }}" href="{{ route('admin.orders.index', ['status' => 'shipped']) }}">Dikirim</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request('status') == 'delivered' ? 'active' : '' }}" href="{{ route('admin.orders.index', ['status' => 'delivered']) }}">Sampai</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request('status') == 'cancelled' ? 'active' : '' }}" href="{{ route('admin.orders.index', ['status' => 'cancelled']) }}">Batal</a>
+                <a class="nav-link {{ request('status') == 'completed' ? 'active' : '' }}" href="{{ route('admin.orders.index', ['status' => 'completed']) }}">Selesai</a>
             </li>
         </ul>
     </div>
@@ -59,10 +53,8 @@
                                     <span class="badge bg-warning text-dark">Pending</span>
                                 @elseif($order->status == 'processing')
                                     <span class="badge bg-info text-dark">Diproses</span>
-                                @elseif($order->status == 'shipped')
-                                    <span class="badge bg-primary">Dikirim</span>
-                                @elseif($order->status == 'delivered')
-                                    <span class="badge bg-success">Sampai</span>
+                                @elseif($order->status == 'completed')
+                                    <span class="badge bg-success">Selesai</span>
                                 @elseif($order->status == 'cancelled')
                                     <span class="badge bg-danger">Batal</span>
                                 @endif
