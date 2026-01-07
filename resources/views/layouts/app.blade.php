@@ -13,7 +13,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- SEO Meta Tags --}}
-    <title>@yield('title', 'Toko Online') - {{ config('app.name') }}</title>
+    <title>@yield('title', '') - {{ config('app.name') }}</title>
     <meta name="description" content="@yield('meta_description', 'Toko online terpercaya dengan produk berkualitas')">
 
     {{-- Favicon --}}

@@ -36,54 +36,62 @@ class OrderService
         // maka SEMUA query yang sudah jalan akan dibatalkan (Rollback).
         // Order tidak akan terbentuk setengah-setengah.
         return DB::transaction(function () use ($user, $cart, $shippingData) {
-            // A. VALIDASI STOK & HITUNG TOTAL
-            $totalAmount = 0;
-            foreach ($cart->items as $item) {
-                if ($item->quantity > $item->product->stock) {
-                    throw new \Exception("Stok produk {$item->product->name} tidak mencukupi.");
-                }
-                $totalAmount += $item->product->discount_price * $item->quantity;
-            }
 
-            // B. BUAT HEADER ORDER
+    // A. VALIDASI STOK & HITUNG TOTAL
+    $totalAmount = 0;
+
+    foreach ($cart->items as $item) {
+        if ($item->quantity > $item->product->stock) {
+            throw new \Exception("Stok produk {$item->product->name} tidak mencukupi.");
+        }
+
+        $price = $item->product->discount_price ?? $item->product->price;
+        $totalAmount += $price * $item->quantity;
+    }
+    
+
+
             $order = Order::create([
-                'user_id'          => $user->id,
-                'order_number'     => 'ORD-' . strtoupper(Str::random(10)),
-                'status'           => 'pending',
-                'payment_status'   => 'unpaid',
-                'shipping_name'    => $shippingData['name'],
-                'shipping_address' => $shippingData['address'],
-                'shipping_phone'   => $shippingData['phone'],
-                'total_amount'     => $totalAmount,
-            ]);
+        'user_id'          => $user->id,
+        'order_number'     => 'ORD-' . strtoupper(Str::random(10)),
+        'status'           => 'pending',
+        'payment_status'   => 'unpaid',
+        'shipping_name'    => $shippingData['name'],
+        'shipping_address' => $shippingData['address'],
+        'shipping_phone'   => $shippingData['phone'],
+        'total_amount'     => $totalAmount,
+    ]);
 
-            // C. PINDAHKAN ITEMS
-            foreach ($cart->items as $item) {
-                $order->items()->create([
-                    'product_id'   => $item->product_id,
-                    'product_name' => $item->product->name,
-                    'price'        => $item->product->discount_price,
-                    'quantity'     => $item->quantity,
-                    'subtotal'     => $item->product->discount_price * $item->quantity,
-                ]);
-                $item->product->decrement('stock', $item->quantity);
-            }
+    // C. PINDAHKAN ITEMS
+    foreach ($cart->items as $item) {
+        $price = $item->product->discount_price ?? $item->product->price;
 
-            // D. Pastikan relasi user di-load sebelum generate Snap Token
-            $order->load('user');
-            $midtransService = new \App\Services\MidtransService();
-            try {
-                $snapToken = $midtransService->createSnapToken($order);
-                $order->update(['snap_token' => $snapToken]);
-            } catch (\Exception $e) {
-                // Jika gagal, biarkan snap_token tetap null, bisa di-handle di frontend
-            }
+        $order->items()->create([
+            'product_id'   => $item->product_id,
+            'product_name' => $item->product->name,
+            'price'        => $price,
+            'quantity'     => $item->quantity,
+            'subtotal'     => $price * $item->quantity,
+        ]);
 
-            // E. BERSIHKAN KERANJANG
-            $cart->items()->delete();
-            // $cart->delete(); // opsional
+        $item->product->decrement('stock', $item->quantity);
+    }
 
-            return $order;
+    // D. MIDTRANS
+    $order->load('user');
+
+    try {
+        $midtransService = new \App\Services\MidtransService();
+        $snapToken = $midtransService->createSnapToken($order);
+        $order->update(['snap_token' => $snapToken]);
+    } catch (\Exception $e) {
+        // boleh gagal
+    }
+
+    // E. BERSIHKAN KERANJANG
+    $cart->items()->delete();
+
+    return $order;
         });
         // ==================== DATABASE TRANSACTION END ====================
     }

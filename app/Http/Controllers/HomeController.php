@@ -42,7 +42,7 @@ class HomeController extends Controller
         // Hapus baris ini setelah debug
         // dd(Category::class);
 
-        // ================================================
+        // ================================================ 
         // PRODUK UNGGULAN (FEATURED)
         // - Flag is_featured = true
         // - Aktif dan ada stok

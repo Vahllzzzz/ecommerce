@@ -2,6 +2,11 @@
 @section('title', 'Daftar Produk')
 @section('content')
 
+<header class="mb-3">
+    <a href="#" class="burger-btn d-block d-xl-none">
+        <i class="bi bi-justify fs-3"></i>
+    </a>
+</header>
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="h3 text-gray-800">Daftar Produk</h2>
     <a href="{{ route('admin.products.create') }}" class="btn btn-primary">

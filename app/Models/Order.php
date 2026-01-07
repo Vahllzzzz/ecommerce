@@ -19,6 +19,7 @@ class Order extends Model
          'subtotal',
         'order_number',
         'status',
+        'payment_status',
         'total_amount',
         'shipping_name',
         'shipping_address',

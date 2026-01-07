@@ -1,3 +1,9 @@
+        <style>
+            .chart-container {
+                position: relative;
+                height: 300px; /* Atur tinggi sesuai kebutuhan */
+            }
+        </style>
         <header class="mb-3">
             <a href="#" class="burger-btn d-block d-xl-none">
                 <i class="bi bi-justify fs-3"></i>
@@ -128,6 +134,19 @@
                                                 </div>
                                             </div>
                                         @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- 2. Revenue Chart --}}
+                        <div class="col-12 col-xl-8">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-white py-3">
+                                    <h5 class="card-title mb-0">Grafik Penjualan (7 Hari)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="revenueChart" height="100"></canvas>
                                     </div>
                                 </div>
                             </div>
